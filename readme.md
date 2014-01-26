@@ -1,24 +1,25 @@
-
-Automation and Test Experiment
+#Automation and Test Experiment
 
 January 25, 2014
 
 This experiment explores unit testing and coded UI testing, integrated with the development of a library consumed by a user interface, in Visual Studio 2013 Premium. You can download the source from github at https://github.com/matthewkastor/AutomationAndTestExperiment/ To use this solution you'll need Visual Studio Ultimate or Premium as the other editions don't support Coded UI tests. You can currently download a trial version of either version if you'd like to do some experimenting. After opening the solution run BUILD -> Clean Solution, then BUILD -> Build Solution. Everything should compile without errors. If you have trouble, file an issue on the github repo and I'll try to fix it. https://github.com/matthewkastor/AutomationAndTestExperiment/issues
 
 On a side note, Test Automation FX http://www.testautomationfx.com can do Coded UI testing and they offer a free version that integrates with any version of Visual Studio, even the express versions. Since Visual Studio includes the Unit Testing framework with all versions you'd just have to replace the Coded UI project with a TAFX project. I can't speak for the quality or the level of integration that TAFX has with development in Visual Studio, I'm just saying that if you can't afford a 6,000 + price tag for the version of VS with Coded UI support, you can find a few alternatives or try your luck hand rolling something using System.Windows.Automation (see UIAutomationClient, included in the .Net framework).
-Solution Contents
+
+##Solution Contents
 
     AutomationAndTestExperiment_PortableClassLib
     AutomationAndTestExperiment_UnitTestProject
     AutomationAndTestExperiment_UI
     AutomationAndTestExperiment_CodedUITestProject
 
-Portable Class Library
+##Portable Class Library
 
 The portable class library is where it all begins. I know I want to write some kind of program, and I have an idea of what I want this program to do. So, I fire up the Visual Studio and start a Portable Class Library project. I'm not even interested in the user interface at this point, all I want to do is create the logic that will do all the thinking for me. There's plenty of time to pretty it up once I get it working.
 
 Now, I could just start banging out some code until I think it's doing what I want it to and, that's a great way to go for something as simple and small as this. The thing is, I don't want to think about a lot. I want to just write code and have some sort of verification to tell me when I've got it right. I should probably write a test that will call my methods and let me know if they're returning the results I expect. That way, I can bang out some code, test it, and when the tests pass I'll be confident that I've written something useful to me. Then I can take this first draft of my library and do optimizations and other fun stuff, knowing that if I break my code my tests will tell me.
-Unit Test Project
+
+##Unit Test Project
 
 Alright, so I've got an empty class library. This is the perfect time to start a unit test project and create a reference to the class library. After I've done that, I just have to decide what I'm going to call my methods and get my head around what they're going to do, exactly.
 
@@ -27,10 +28,12 @@ I've decided to create a class called MyStaticClass that will have a super compl
 Now, the test isn't so complicated this time. This is where I'd spend some time figuring out all the different inputs and outputs I either wanted or didn't want, then write up some tests to make sure my method was well behaved. For this one though, all I really need to do is check whether SayHi returns a string that matches "Hi" and fail it if it does not. Good stuff. So my test method just calls SayHi and asserts that its return value will equal "Hi". Straightforward stuff.
 
 At this point, the solution won't build because SayHi doesn't return the string that our stub promises it will. That's the compiler doing some linting to prevent obvious mistakes. Nice. Ok, so to get it to compile, implement SayHi as a return statement that returns an empty string. Now it's ready, the solution will compile, so do it. Then, open up the Test Explorer (Test -> Windows -> Test Explorer) and you should see your unit tests. Right click the test and run it. The test will fail because it expects SayHi to return "Hi" but saw that it actually returned an empty string. Neat huh? Fix SayHi and run the test again. My setup rebuilds the solution when tests are run. If your setup doesn't rebuild first then you'll have to do it yourself. At any rate once SayHi is doing what the test thinks it should be doing, you'll see a green checkmark instead of a red x. Everything will be awesome then, except there still won't be a badass user interface to show off this amazing library's functionality...
-UI
+
+##UI
 
 So yeah, consoles are cool and all but... Add a Windows Forms project to the solution. This is about to get awesome. Add a reference from the Windows Forms project to the Class Library project. Shazam, it's like left brain and right brain, a place for creative art and a place for logical thought. Draw the pictures however you want, the end goal is to end up with a button that calls SayHi and updates a disabled textbox with the return value of SayHi. So yeah, there's no reason to write the logic of the form yet. Maybe one of your buddies will do that and you're just going to make it way, way, pretty. It's ok. There is a great way to let your buddy know what you want the form to do. Just add the controls to the form and decorate it to your hearts content, then create a Coded UI test so your buddy can tell when he's got it working nice for you. Cool huh? Alright, you've got a button and a text box setup just how you want them to look? Good.
-Coded UI Test
+
+##Coded UI Test
 
 Alright, this part is super easy. You basically record yourself clicking the button on the form and add an assertion that the textbox will have the value "Hi" in it afterward. Take a look at MyForm_CodedUITest.cs and search for Diagnostics.Process to see how I've launched the debug version of the UI on test setup, and closed it on test teardown. That makes things run smooth.
 
@@ -39,7 +42,8 @@ So, to record your actions you right click in the body of the empty test method 
 Now, the cool thing to do would be to setup the test setup and teardown methods. The coded ui test will be in the test explorer, and the test will pass (build, run tests). The reason it passes is because you haven't told it that anything went wrong. Change the test method so it throws an error. Do something like Assert that false is true and check out the awesome red x. Well that's kind of silly but it does say something important, tests pass by default... keep it in mind. Record yourself clicking the button and add an assertion about the text box's text being equal to whatever it actually is. You'll record the click, hit the generate code button, drag the bullseye over the text box, highlight the text property, add the assertion, generate code again, then close the CodedUITestBuilder. You'll see two new calls inside your test method. Awesome huh? Run the test. It should fire up the form, click the button, and make sure the text field is blank. If it does all that and passes then you're almost ready.
 
 Open UIMap.uitest and find your assertion in the left hand pane. Right click it and chose the option to move it. This will copy the method and its properties over to UIMap.cs where you can edit it to your hearts content without worrying that it will be overwritten if you decide to re-record things. Besides, you need to edit it so it looks for the value "Hi" in the textbox. It's easy. After you've moved the assertion look in UIMap.cs for "Parameters to be passed into 'AssertMessageIsHi'" and change it so the Expected value is "Hi" instead of an empty string. Re-run the test and watch it fail. You could even go as far as editing the text field so it said "Hi" just to verify that the test will pass, be sure to change it back if you do though.
-Wrapping it all Up
+
+##Wrapping it all Up
 
 Now, comes the fun part. Either you or your buddy can double click the button on the form and write a little logic into the generated click handler stub. Once the button changes the text field's value to "Hi" then all your tests should pass.
 
