@@ -8,10 +8,10 @@ On a side note, Test Automation FX http://www.testautomationfx.com can do Coded 
 
 ##Solution Contents
 
-    AutomationAndTestExperiment_PortableClassLib
-    AutomationAndTestExperiment_UnitTestProject
-    AutomationAndTestExperiment_UI
-    AutomationAndTestExperiment_CodedUITestProject
+1. AutomationAndTestExperiment_PortableClassLib
+2. AutomationAndTestExperiment_UnitTestProject
+3. AutomationAndTestExperiment_UI
+4. AutomationAndTestExperiment_CodedUITestProject
 
 ##Portable Class Library
 
